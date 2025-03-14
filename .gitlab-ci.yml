@@ -1,0 +1,35 @@
+image: docker:24.0.4
+
+services:
+  - docker:24.0.4-dind
+
+stages:
+  - build
+  - test
+  - deploy
+
+build-job:
+  stage: build
+  script:
+    - echo "Compiling the code..."
+    - unset DOCKER_HOST
+    - docker buildx build --build-arg COMMIT_SHA=$CI_COMMIT_SHORT_SHA -t phoenine-apitest:$CI_COMMIT_SHORT_SHA .
+    - echo "Compile complete."
+  only:
+    - api
+
+lint-test-job:   # This job also runs in the test stage.
+  stage: test    # It can run at the same time as unit-test-job (in parallel).
+  script:
+    - echo "Linting code... This will take about 10 seconds."
+    # - pip install black
+    - sleep 5
+    # - black --check .
+    - echo "No lint issues found."
+
+deploy-job:      # This job runs in the deploy stage.
+  stage: deploy  # It only runs when *both* jobs in the test stage complete successfully.
+  environment: production
+  script:
+    - echo "Deploying application..."
+    - echo "Application successfully deployed."

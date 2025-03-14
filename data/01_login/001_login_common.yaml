@@ -1,0 +1,96 @@
+case_common:
+  allureEpic: PHOENINE平台
+  allureFeature: 登录模块
+  allureStory: 测试账户成功登录
+
+login_with_test_account:
+  host: ${{host}}
+  url: /console/api/login
+  method: POST
+  description: 环境初始化登录
+  headers:
+    Content-Type: application/json;charset=UTF-8
+  request_type: JSON
+  is_run: True
+  data:
+    email: 'evan@phoenine.ltd'
+    password: 'phoenine1234'
+    remember_me: true
+  store_cache:
+  is_dependence: False
+  dependence_case:
+  assert_data:
+    code:
+      jsonpath: $.result
+      type: eq
+      value: success
+  teardown:
+
+login_with_invalid_account:
+  host: ${{host}}
+  url: /console/api/login
+  method: POST
+  description: 使用非邮箱账户登录
+  headers:
+    Content-Type: application/json;charset=UTF-8
+  request_type: JSON
+  is_run: True
+  data:
+    email: 'test'
+    password: 'phoenine1234'
+    remember_me: false
+  store_cache:
+  is_dependence: False
+  dependence_case:
+  assert_data:
+    message:
+      jsonpath: $.message
+      type: contains
+      value: is not a valid email
+  teardown:
+
+login_with_inexistent_account:
+  host: ${{host}}
+  url: /console/api/login
+  method: POST
+  description: 使用不存在的用户登录
+  headers:
+    Content-Type: application/json;charset=UTF-8
+  request_type: JSON
+  is_run: True
+  data:
+    email: 'testaaa@phoenine.ltd'
+    password: 'phoenine1234'
+    remember_me: false
+  store_cache:
+  is_dependence: False
+  dependence_case:
+  assert_data:
+    message:
+      jsonpath: $.message
+      type: contains
+      value: Invalid email or password
+  teardown:
+
+login_with_incorrect_password:
+  host: ${{host}}
+  url: /console/api/login
+  method: POST
+  description: 使用格式错误的密码登录
+  headers:
+    Content-Type: application/json;charset=UTF-8
+  request_type: JSON
+  is_run: True
+  data:
+    email: 'evan@phoenine.ltd'
+    password: 'phoenine123'
+    remember_me: false
+  store_cache:
+  is_dependence: False
+  dependence_case:
+  assert_data:
+    message:
+      jsonpath: $.message
+      type: contains
+      value: Not a valid password
+  teardown:

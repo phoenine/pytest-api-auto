@@ -1,0 +1,15 @@
+environment: Ubuntu
+
+project_name: PHOENINE平台
+
+tester_name: Evan
+
+host: http://192.168.31.6/phoenine-plat
+
+# 0: 不发送通知 1：发送飞书通知
+notification_type: 1
+
+lark_webhook:
+  webhook: https://open.feishu.cn/open-apis/bot/v2/hook/xxxx
+
+excel_report: False

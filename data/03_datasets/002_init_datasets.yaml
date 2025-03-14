@@ -1,0 +1,166 @@
+case_common:
+  allureEpic: PHOENINE平台
+  allureFeature: 配置-知识库
+  allureStory: 初始化知识库
+
+upload_csv_file_successfully:
+  host: ${{host}}
+  url: /console/api/files/upload
+  method: POST
+  description: 上传csv文件成功
+  headers:
+    Authorization: access_token
+  request_type: FILE
+  is_run: True
+  data:
+    file: test.csv
+  store_cache:
+    - type: response
+      jsonpath: $..id
+      name: temp_csv_file_id
+  is_dependence: False
+  dependence_case:
+  assert_data:
+    provider:
+      jsonpath: $.extension
+      type: eq
+      value: csv
+    name:
+      jsonpath: $.name
+      type: eq
+      value: test.csv
+  teardown:
+
+init_dataset_with_low_quality_successfully:
+  host: ${{host}}
+  url: /console/api/datasets/init
+  method: POST
+  description: 初始化低质量知识库成功
+  headers:
+    Content-Type: application/json;charset=UTF-8
+    Authorization: access_token
+  request_type: JSON
+  is_run: True
+  data:
+    data_source:
+      type: upload_file
+      info_list:
+        data_source_type: upload_file
+        file_info_list:
+          file_ids:
+            - $cache{temp_csv_file_id}
+    dataset:
+      name: ${{faker_dataset_name}}
+      description: ${{faker_app_description}}
+    embedding_model: {}
+    doc_form: text_model
+    indexing_technique: economy
+    process_rule:
+      mode: custom
+      rules:
+        pre_processing_rules:
+          - id: remove_extra_spaces
+            enabled: false
+          - id: remove_urls_emails
+            enabled: false
+        segmentation:
+          separator: \\n
+          max_tokens: 500
+          chunk_overlap: 50
+    retrieval_model:
+      top_k: 7
+      reranking_model: {}
+      search_method: keyword_search
+      score_threshold_enabled: false
+  store_cache:
+    - type: response
+      jsonpath: $.dataset.id
+      name: low_quality_dataset_id
+    - type: response
+      jsonpath: $.dataset.name
+      name: low_quality_dataset_name
+  is_dependence: True
+  dependence_case:
+    - case_id: upload_csv_file_successfully
+  assert_data:
+    provider:
+      jsonpath: $..indexing_technique
+      type: eq
+      value: economy
+    permission:
+      jsonpath: $..extension
+      type: eq
+      value: csv
+  teardown:
+    #! 索引过程中删除会抛出异常
+    # - case_id: delete_dataset_successfully
+    #   teardown_data:
+    #     - dependent_type: cache
+    #       cache_data: low_quality_dataset_id
+    #       replace_key: $url_params{dataset_id}
+
+init_dataset_with_high_quality_successfully:
+  host: ${{host}}
+  url: /console/api/datasets/init
+  method: POST
+  description: 初始化高质量知识库成功
+  headers:
+    Content-Type: application/json;charset=UTF-8
+    Authorization: access_token
+  request_type: JSON
+  is_run: True
+  data:
+    data_source:
+      type: upload_file
+      info_list:
+        data_source_type: upload_file
+        file_info_list:
+          file_ids:
+            - $cache{temp_csv_file_id}
+    dataset:
+      name: ${{faker_dataset_name}}
+      description: ${{faker_app_description}}
+    embedding_model:
+      embedding_model: bge-base-zh-v1.5
+      provider: phoenine
+    doc_form: text_model
+    indexing_technique: high_quality
+    process_rule:
+      mode: custom
+      rules:
+        pre_processing_rules:
+          - id: remove_extra_spaces
+            enabled: false
+          - id: remove_urls_emails
+            enabled: false
+        segmentation:
+          separator: \\n
+          max_tokens: 500
+          chunk_overlap: 50
+    retrieval_model:
+      score_threshold: 0.5
+      top_k: 7
+      reranking_enable: false
+      reranking_model: {}
+      search_method: semantic_search
+      score_threshold_enabled: true
+  store_cache:
+    - type: response
+      jsonpath: $.dataset.id
+      name: high_quality_dataset_id
+    - type: response
+      jsonpath: $.dataset.name
+      name: high_quality_dataset_name
+  is_dependence: True
+  dependence_case:
+    - case_id: upload_csv_file_successfully
+  assert_data:
+    provider:
+      jsonpath: $..indexing_technique
+      type: eq
+      value: high_quality
+    permission:
+      jsonpath: $..extension
+      type: eq
+      value: csv
+  teardown:

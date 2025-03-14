@@ -1,2 +1,27 @@
-# pytest-api-auto
-This framework is an interface automation implemented based on Python + pytest + allure.
+## 框架介绍
+
+本框架主要是基于 Python + pytest + allure 实现的接口自动化框架。
+框架结构主要参考了： https://github.com/yushaoqi/PytestAutoApi
+根据自身的情况做了一些删减，同时优化了一些公共的模块。
+
+## 实现功能
+
+* 测试数据隔离
+* 用例代码自动生成: 编写yaml文件，程序可自动生成用例代码并执行
+* 多场景断言: 支持接口多场景断言
+* 多接口数据依赖: 可以依赖其他接口的响应数据作为参数
+* 日志模块: 根据需要打印每个接口的日志信息
+
+## 运行方法
+
+1. 安装依赖库；
+```pip3 install -r requirements.txt```
+
+2. 运行脚本；
+```python3 run.py```
+
+
+## 后续计划
+
+* 持续优化，支持jenkins
+* 与测试管理工具 + 大模型联动，根据抓取的api接口自动生成yaml测试文件，同时通过workflow自动执行自动化测试，并分析测试结果。

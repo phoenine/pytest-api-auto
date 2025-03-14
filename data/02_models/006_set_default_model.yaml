@@ -1,0 +1,46 @@
+case_common:
+  allureEpic: PHOENINE平台
+  allureFeature: 模型配置
+  allureStory: 设置默认模型
+
+set_default_model_successfully:
+  host: ${{host}}
+  url: /console/api/workspaces/current/default-model
+  method: POST
+  description: 设置默认模型成功
+  headers:
+    Content-Type: application/json;charset=UTF-8
+    Authorization: access_token
+  request_type: JSON
+  is_run: True
+  data:
+    model_settings:
+    - model_type: llm
+      provider: phoenine
+      model: qwen2.5-7B-instruct
+    - model_type: text-embedding
+      provider: phoenine
+      model: bge-base-zh-v1.5
+    - model_type: rerank
+      provider: phoenine
+      model: bge-reranker-large
+    - model_type: speech2text
+    - model_type: tts
+  store_cache:
+    - type: request
+      jsonpath: $..[?(@.model_type=="llm")].model
+      name: default_llm
+    - type: request
+      jsonpath: $..[?(@.model_type=="rerank")].model
+      name: default_rerank
+    - type: request
+      jsonpath: $..[?(@.model_type=="text-embedding")].model
+      name: default_embedding
+  is_dependence: False
+  dependence_case:
+  assert_data:
+    result:
+      jsonpath: $.result
+      type: eq
+      value: success
+  teardown:
